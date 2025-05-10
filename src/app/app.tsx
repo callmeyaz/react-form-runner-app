@@ -152,7 +152,7 @@ function App() {
               </ul>
             }
             <label>First Name</label>
-            <input type="text" defaultValue={userState.name.firstname} value={userState.name.firstname}
+            <input type="text" value={userState.name.firstname}
               onChange={(e) => {
                 setUserState(s => s && setDeep(s, e.target.value, "name.firstname"));
                 setFieldDirty(true, "name.firstname");
@@ -170,7 +170,7 @@ function App() {
               </ul>
             }
             <label>Last Name</label>
-            <input type="text" defaultValue={userState.name.lastname} value={userState.name.lastname}
+            <input type="text" value={userState.name.lastname}
               onChange={(e) => {
                 setUserState(s => s && setDeep(s, e.target.value, "name.lastname"));
                 setFieldDirty(true, "name.lastname");
@@ -192,7 +192,7 @@ function App() {
                     </ul>
                   }
                   <label>Role {index + 1}</label>
-                  <input type="text"  defaultValue={item} value={item}
+                  <input type="text" value={item}
                     key={index} 
                     onChange={
                       (e) => {
@@ -219,7 +219,7 @@ function App() {
               </ul>
             }
             <label>Address</label>
-            <input type="text" defaultValue={userState.address} value={userState.address}
+            <input type="text" value={userState.address}
               onChange={
                 (e) => {
                   setUserState(s => s && setDeep(s, e.target.value, "address"));
