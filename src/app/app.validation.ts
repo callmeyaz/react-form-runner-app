@@ -1,9 +1,8 @@
 import * as Yup from "yup";
 import { User } from "./app.data";
-import { IYupValidationMessage } from "../yup/IYupValidationErrorMessage";
+import { IYupValidationErrorMessage } from "../yup/IYupValidationErrorMessage";
 
-
-export const AppExSchema: Yup.ObjectSchema<User> = Yup.object({
+export const userSchema: Yup.ObjectSchema<User> = Yup.object({
   name: Yup.object({
     firstname: Yup.string().defined()
       .test("name.firstname required", function (item) {
@@ -13,7 +12,7 @@ export const AppExSchema: Yup.ObjectSchema<User> = Yup.object({
               key: this.path,
               message: "Firstname not provided.",
               errorCode: "0001"
-            } as Yup.Message<IYupValidationMessage>
+            } as Yup.Message<IYupValidationErrorMessage>
           });
         }
         return true;
@@ -25,7 +24,7 @@ export const AppExSchema: Yup.ObjectSchema<User> = Yup.object({
               key: this.path,
               message: "Firstname min length is 4 characters.",
               errorCode: "0001"
-            } as Yup.Message<IYupValidationMessage>
+            } as Yup.Message<IYupValidationErrorMessage>
           });
         }
         return true;
@@ -38,7 +37,7 @@ export const AppExSchema: Yup.ObjectSchema<User> = Yup.object({
               key: this.path,
               message: "Lastname not provided.",
               errorCode: "0002"
-            } as Yup.Message<IYupValidationMessage>
+            } as Yup.Message<IYupValidationErrorMessage>
           });
         }
         return true;
@@ -53,7 +52,7 @@ export const AppExSchema: Yup.ObjectSchema<User> = Yup.object({
               key: this.path,
               message: "Role Not provided",
               errorCode: "0003"
-            } as Yup.Message<IYupValidationMessage>
+            } as Yup.Message<IYupValidationErrorMessage>
           });
         }
         return true;
@@ -67,7 +66,7 @@ export const AppExSchema: Yup.ObjectSchema<User> = Yup.object({
             key: this.path,
             message: "Address Not provided",
             errorCode: "0004"
-          } as Yup.Message<IYupValidationMessage>
+          } as Yup.Message<IYupValidationErrorMessage>
         });
       }
       return true;

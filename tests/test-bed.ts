@@ -1,133 +1,102 @@
+import { FormRunner, IFormValidator, IValidationMessage } from "form-runner";
+import * as Yup from 'yup';
 
-
-import { minLengthValidator, requiredValidator, ValidatorFunction } from "../src/lib/ValidatorFunction";
-import * as Yup from "yup";
-
-//TControl extends {[K in keyof TControl]: AbstractControl<any>} = any,
-
-//export const AppExsSchema: Yup.ObjectSchema<User> = Yup.object(user);
-
-
-
-//   public array<T extends AbstractControlOptions, TVal extends { [key: string]: AbstractControlOptions}>(
-//     initialValue: any[], topleveloption: T, controls?: TVal): IFormArray {
-//     // T is control
-//     return new FormArray();
-//   }
-
-// array: <T extends AbstractControlOptions, TVal extends { [key: string]: AbstractControlOptions}>(
-//     initialValue: any[], topleveloption: T, controls?: TVal) => FormArray;
-
-
-
-
-
-type TGroup = { [key: string]: (FieldValidationConfig | IFormGroup | IFormArray) };
-type TArray = (FieldValidationConfig | TGroup);
-
-class FieldValidationConfig {
-  value: Yup.Schema = Yup.object({});
-  validators: ValidatorFunction<any>[] = [];
+var user = {
+    name: {
+        firstname: "John",
+        lastname: "Doe"
+    },
+    roles: [
+        "contributor",
+        ""
+    ],
+    address: ""
 }
 
-interface IFormArray {
-  getSchema: () => Yup.Schema
-  validate: () => Promise<boolean>;
+interface IYupValidationMessage extends IValidationMessage, Record<string, unknown> {
+    errorCode: string
 }
 
-interface IFormGroup {
-  getSchema: () => Yup.Schema
-  validate: () => Promise<boolean>;
-}
+class YupValidator<T extends Yup.Maybe<Yup.AnyObject>> implements IFormValidator<IYupValidationMessage> {
+    constructor(private validationSchema: Yup.ObjectSchema<T>) { }
 
-class FormGroup<T extends TGroup> implements IFormGroup {
-  private fieldConfigs: T;
-
-  constructor(fieldConfigs: T) {
-    this.fieldConfigs = fieldConfigs;
-  }
-
-  public getSchema(): Yup.Schema {
-    var schema: Yup.Schema = Yup.object({});
-
-    Object.keys(this.fieldConfigs).forEach((fieldName) => {
-      var fieldConfig = this.fieldConfigs[fieldName];
-
-      if (fieldConfig instanceof FieldValidationConfig) {
-        const rule = {} as { [key: string]: any };
-        rule[fieldName] = fieldConfig.value;
-        schema = Yup.object({}).shape(rule);
-
-      } else if (fieldConfig instanceof FormGroup || fieldConfig instanceof FormArray) {
-        const rule = {} as { [key: string]: any };
-        rule[fieldName] = fieldConfig.getSchema();
-        schema = Yup.object({}).shape(rule);
-      }
-    });
-
-    return schema;
-  }
-
-  public validate(): Promise<boolean> {
-    return Promise.resolve(true);
-  }
-}
-
-class FormArray<T extends TArray> implements IFormArray {
-  private fieldConfig: T;
-
-  constructor(fieldConfig: T) {
-    this.fieldConfig = fieldConfig;
-  }
-
-  public getSchema(): Yup.Schema {
-    var schema: Yup.Schema = Yup.object();
-
-    if (this.fieldConfig instanceof FieldValidationConfig) {
-      schema = Yup.array().defined().of(this.fieldConfig.value);
-    } else if (this.fieldConfig instanceof FormGroup) {
-      schema = Yup.array().defined().of(this.fieldConfig.getSchema());
+	public validate(data: T): Promise<IYupValidationMessage[]> {
+        return this.validationSchema.validate(data, { abortEarly: false })
+            .then((_) => [])
+            .catch((err) => {
+                return err.errors as IYupValidationMessage[];
+            });
     }
-
-    return schema;
-  }
-
-  public validate(): Promise<boolean> {
-    return Promise.resolve(true);
-  }
 }
 
-interface IFormBuilder {
-  group: <TVal extends TGroup>(controls: TVal) => IFormGroup;
-  array: <TVal extends TArray>(control: TVal) => IFormArray;
-}
+// Create Yup validation schema
+export const userSchema: Yup.ObjectSchema<typeof user> = Yup.object({
+    name: Yup.object({
+      firstname: Yup.string().defined().test(function(val) { return !val ?
+        this.createError({ 
+          message: { key: this.path, message: "First name not provided" } as 
+            Yup.Message<IYupValidationMessage> })
+        : true 
+      }),
+      lastname: Yup.string().defined().test(function(val) { return !val ?
+        this.createError({ 
+          message: { key: this.path, message: "Last name not provided" } as 
+            Yup.Message<IYupValidationMessage> })
+        : true 
+      })
+    }),
+    roles:  Yup.array().defined().of(
+      Yup.string().defined().test(function(val) { return !val ?
+        this.createError({ 
+          message: { key: this.path, message: "Role not provided" } as 
+            Yup.Message<IYupValidationMessage> })
+        : true 
+      })
+    ),
+    address: Yup.string().defined().test(function(val) { return !val ?
+      this.createError({ 
+        message: { key: this.path, message: "Address not provided" } as 
+            Yup.Message<IYupValidationMessage> })
+      : true 
+    })
+  });
 
-class FormBuilder implements IFormBuilder {
-  public group<T extends TGroup>(controls: T): IFormGroup {
-    return new FormGroup(controls);
-  }
+var validator = new YupValidator(userSchema);
+var runner = new FormRunner<typeof user>(validator, user);
 
-  public array<T extends TArray>(control: T): IFormArray {
-    return new FormArray(control);
-  }
-}
+console.log("User: ", JSON.stringify(user))
+runner.setFieldDirty(true, "name.firstname");
+runner.setFieldTouched(true, "name.lastname");
 
-//--
+runner.validateAsync(user)
+.then((isValid) => {
 
-var builder = new FormBuilder();
+    console.log("Form Validation: ", isValid ? "passed": "failed");
 
-var group = builder.group({
-  name: builder.group({
-    firstname: { value: Yup.string().defined(), validators: [requiredValidator(), minLengthValidator(4)] } as FieldValidationConfig,
-    lastname: { value: Yup.string().defined(), validators: [requiredValidator()] } as FieldValidationConfig,
-  }),
-  roles: builder.array({ value: Yup.string().defined(), validators: [requiredValidator()] } as FieldValidationConfig),
-  address: { value: Yup.string().defined(), validators: [requiredValidator()] } as FieldValidationConfig
+    console.log("Dirty: ", JSON.stringify(runner.dirty))
+    console.log("Touched: ", JSON.stringify(runner.touched))
+    console.log("Errors: ", JSON.stringify(runner.errors))
+    
+    console.log("name.firstname: ", JSON.stringify(runner.dirty.name?.firstname));
+    console.log("name.firstname: ", JSON.stringify(runner.touched.name?.firstname));
+    console.log("name.firstname: ", JSON.stringify(runner.errors.name?.firstname));
+    
+    console.log("name.lastname: ", JSON.stringify(runner.dirty.name?.lastname))
+    console.log("name.lastname: ", JSON.stringify(runner.touched.name?.lastname))
+    console.log("name.lastname: ", JSON.stringify(runner.errors.name?.lastname));
+    
+    console.log("roles[0]: ", JSON.stringify(runner.dirty.roles?.[0]));
+    console.log("roles[0]: ", JSON.stringify(runner.touched.roles?.[0]));
+    console.log("roles[0]: ", JSON.stringify(runner.errors.roles?.[0]));
+    
+    console.log("roles[1]: ", JSON.stringify(runner.dirty.roles?.[1]));
+    console.log("roles[1]: ", JSON.stringify(runner.touched.roles?.[1]));
+    console.log("roles[1]: ", JSON.stringify(runner.errors.roles?.[1]));
+    
+    console.log("name.address: ", JSON.stringify(runner.dirty.address));
+    console.log("name.address: ", JSON.stringify(runner.touched.address));
+    console.log("name.address: ", JSON.stringify(runner.errors.address));
 });
 
 
-group.validate()
-  .then((response) => {
-    console.log("Validation ? ", response ? "passed" : "faild");
-  });
 

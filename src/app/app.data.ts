@@ -12,6 +12,9 @@ export const user = {
     firstname: "",
     lastname: ""
   },
-  roles: [],
+  roles: [
+    "",
+    ""
+  ],
   address: ""
 } as User;
