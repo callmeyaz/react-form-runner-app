@@ -2,7 +2,7 @@ import { YupValidator } from "../yup/YupValidator";
 import { useFormRunner } from "react-form-runner";
 import { User, user } from "./app.data";
 import { userSchema } from "./app.validation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { setDeep } from "../utils/utils";
 
 function App() {
@@ -32,6 +32,10 @@ function App() {
     getFieldErrors
 
   } = useFormRunner(new YupValidator(userSchema), userState, {});
+
+  useEffect(() => {
+    validate(userState);  
+  }, [userState]);
 
   function reset() {
     setUserState(user);
