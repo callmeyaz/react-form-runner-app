@@ -1,4 +1,3 @@
 # react-form-runner-app
-A utility to help track mutation in an object by tracking value changes of object properties and maintaining a mutation flag for each property on a parallel object.
 
-This package is specifically created to maintain HTML Form Fields such as  input, select, textarea, date etc. touched status.  
+This is a demo application for React form validation library (react-form-runner)[https://github.com/callmeyaz/react-form-runner].  
