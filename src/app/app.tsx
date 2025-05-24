@@ -3,7 +3,7 @@ import { useFormRunner } from "react-form-runner";
 import { User, user } from "./app.data";
 import { userSchema } from "./app.validation";
 import { useEffect, useState } from "react";
-import { setDeep } from "../utils/utils";
+import { setDeepValue } from "../utils/utils";
 
 function App() {
   const [userState, setUserState] = useState<User>(user);
@@ -158,7 +158,7 @@ function App() {
             <label>First Name</label>
             <input type="text" value={userState.name.firstname}
               onChange={(e) => {
-                setUserState(s => s && setDeep(s, e.target.value, "name.firstname"));
+                setUserState(s => s && setDeepValue(s, e.target.value, "name.firstname"));
                 setFieldDirty(true, "name.firstname");
               }}
               onBlur={() => {
@@ -176,7 +176,7 @@ function App() {
             <label>Last Name</label>
             <input type="text" value={userState.name.lastname}
               onChange={(e) => {
-                setUserState(s => s && setDeep(s, e.target.value, "name.lastname"));
+                setUserState(s => s && setDeepValue(s, e.target.value, "name.lastname"));
                 setFieldDirty(true, "name.lastname");
               }}
               onBlur={() => {
@@ -200,7 +200,7 @@ function App() {
                     key={index} 
                     onChange={
                       (e) => {
-                        setUserState(s => s && setDeep(s, e.target.value, `roles[${index}]`));
+                        setUserState(s => s && setDeepValue(s, e.target.value, `roles[${index}]`));
                         setFieldDirty(true, `roles[${index}]`);
                       }}
                       onBlur={() => {
@@ -226,7 +226,7 @@ function App() {
             <input type="text" value={userState.address}
               onChange={
                 (e) => {
-                  setUserState(s => s && setDeep(s, e.target.value, "address"));
+                  setUserState(s => s && setDeepValue(s, e.target.value, "address"));
                   setFieldDirty(true, "address");
                 }}
               onBlur={() => {

@@ -1,6 +1,6 @@
 import { cloneDeep, isArray, isInteger, isObject, toPath } from "lodash-es";
 
-export function getDeep<T>(obj: any, path: string): T {
+export function getDeepValue<T>(obj: any, path: string): T {
     let copy: any = cloneDeep(obj);
     let currentNode: any = copy;
     let index = 0;
@@ -22,7 +22,7 @@ export function getDeep<T>(obj: any, path: string): T {
     return currentNode[pathList[index]];
 }
 
-export function setDeep<T>(model: any, value: T, path: string): any {
+export function setDeepValue<T>(model: any, value: T, path: string): any {
     let copy: any = cloneDeep(model);
     let currentNode: any = copy;
     let index = 0;
