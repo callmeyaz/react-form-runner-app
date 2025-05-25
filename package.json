@@ -2,7 +2,10 @@
   "name": "vite-project",
   "private": false,
   "version": "0.0.0",
+  "homepage": "https://callmeyaz.github.io/react-form-runner-app",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "start": "vite",
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -17,6 +20,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "gh-pages": "^6.3.0",
     "globals": "^16.0.0",
     "lodash-es": "^4.17.21",
     "react": "^19.1.0",
